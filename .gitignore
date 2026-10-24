@@ -1,0 +1,15 @@
+# Ajustes propios de cada computadora (clave de MySQL, datos SMTP, etc.)
+config/config.local.php
+
+# Lo que genera la aplicación mientras se usa
+storage/logs/*
+!storage/logs/.gitkeep
+storage/correos/*
+!storage/correos/.gitkeep
+
+# Sistema operativo y editores
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/

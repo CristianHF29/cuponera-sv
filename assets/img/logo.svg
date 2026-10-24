@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 28" width="40" height="28" role="img" aria-label="La Cuponera SV">
+  <!-- cupón con muescas a los lados y el signo de porcentaje -->
+  <path d="M5 0H35A5 5 0 0 1 40 5V10A4 4 0 0 0 40 18V23A5 5 0 0 1 35 28H5A5 5 0 0 1 0 23V18A4 4 0 0 0 0 10V5A5 5 0 0 1 5 0Z" fill="#E0306E"/>
+  <circle cx="14.5" cy="9.5" r="3" fill="#FFFFFF"/>
+  <circle cx="25.5" cy="18.5" r="3" fill="#FFFFFF"/>
+  <path d="M26 7.5 14 20.5" stroke="#FFFFFF" stroke-width="2.6" stroke-linecap="round"/>
+</svg>

@@ -1,0 +1,120 @@
+// La Cuponera SV - diagrama relacional de la base de datos
+// Para dibujarlo: entra a https://dbdiagram.io, crea un diagrama nuevo,
+// borra el ejemplo y pega todo este texto. Luego se exporta como PNG o PDF
+// para el documento (Export > PNG).
+
+Project cuponera_sv {
+  database_type: 'MySQL'
+  Note: 'Base de datos de La Cuponera SV, proyecto de cátedra LIS941'
+}
+
+Enum estado_empresa {
+  pendiente
+  aprobada
+  rechazada
+}
+
+Enum estado_oferta {
+  disponible
+  "no disponible"
+}
+
+Enum estado_cupon {
+  vigente
+  canjeado
+}
+
+Enum tipo_usuario {
+  administrador
+  empresa
+  cliente
+}
+
+Table administradores {
+  id int [pk, increment]
+  nombre varchar(100) [not null]
+  correo varchar(120) [not null, unique]
+  usuario varchar(30) [not null, unique]
+  contrasena varchar(255) [not null, note: 'hash de password_hash()']
+  creado_por int [null, ref: > administradores.id, note: 'administrador que lo registró']
+  creado_en datetime [not null, default: `CURRENT_TIMESTAMP`]
+}
+
+Table empresas {
+  id int [pk, increment]
+  nombre varchar(150) [not null]
+  nit char(17) [not null, unique, note: '0000-000000-000-0']
+  direccion varchar(255) [not null]
+  telefono char(9) [not null, note: '0000-0000']
+  correo varchar(120) [not null, unique]
+  usuario varchar(30) [not null, unique]
+  contrasena varchar(255) [not null]
+  estado estado_empresa [not null, default: 'pendiente']
+  porcentaje_comision decimal(5,2) [null, note: 'se fija al aprobar']
+  motivo_rechazo varchar(255) [null]
+  revisado_por int [null, ref: > administradores.id]
+  revisado_en datetime [null]
+  creado_en datetime [not null, default: `CURRENT_TIMESTAMP`]
+}
+
+Table clientes {
+  id int [pk, increment]
+  usuario varchar(30) [not null, unique]
+  correo varchar(120) [not null, unique]
+  contrasena varchar(255) [not null]
+  nombre_completo varchar(100) [not null]
+  apellidos varchar(100) [not null]
+  dui char(10) [not null, unique, note: '00000000-0']
+  fecha_nacimiento date [not null, note: 'debe tener 18 años o más']
+  creado_en datetime [not null, default: `CURRENT_TIMESTAMP`]
+}
+
+Table ofertas {
+  id int [pk, increment]
+  empresa_id int [not null, ref: > empresas.id]
+  titulo varchar(150) [not null]
+  precio_regular decimal(10,2) [not null]
+  precio_oferta decimal(10,2) [not null, note: 'menor que el precio regular']
+  fecha_inicio date [not null]
+  fecha_fin date [not null]
+  fecha_limite_canje date [not null]
+  cantidad_cupones int [null, note: 'NULL = sin límite']
+  descripcion text [not null]
+  estado estado_oferta [not null, default: 'disponible']
+  creado_en datetime [not null, default: `CURRENT_TIMESTAMP`]
+  actualizado_en datetime [null]
+}
+
+Table compras {
+  id int [pk, increment]
+  numero_factura varchar(20) [unique, note: 'F2026-000001']
+  cliente_id int [not null, ref: > clientes.id]
+  oferta_id int [not null, ref: > ofertas.id]
+  cantidad tinyint [not null, note: 'de 1 a 5']
+  precio_unitario decimal(10,2) [not null]
+  total decimal(10,2) [not null]
+  tarjeta_ultimos4 char(4) [not null, note: 'solo los últimos 4 dígitos']
+  creado_en datetime [not null, default: `CURRENT_TIMESTAMP`]
+}
+
+Table cupones {
+  id int [pk, increment]
+  codigo varchar(20) [not null, unique, note: 'CUP-XXXX-XXXX']
+  compra_id int [not null, ref: > compras.id]
+  oferta_id int [not null, ref: > ofertas.id]
+  cliente_id int [not null, ref: > clientes.id]
+  estado estado_cupon [not null, default: 'vigente']
+  canjeado_en datetime [null]
+  creado_en datetime [not null, default: `CURRENT_TIMESTAMP`]
+}
+
+Table recuperacion_contrasena {
+  id int [pk, increment]
+  tipo_usuario tipo_usuario [not null]
+  usuario_id int [not null, note: 'id en administradores, empresas o clientes según tipo_usuario']
+  token_hash char(64) [not null, unique, note: 'sha256 del token del correo']
+  expira_en datetime [not null]
+  usado boolean [not null, default: false]
+  usado_en datetime [null]
+  creado_en datetime [not null, default: `CURRENT_TIMESTAMP`]
+}
